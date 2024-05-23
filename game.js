@@ -1,106 +1,93 @@
-let buttonColours = ["red", "blue", "green", "yellow"];
+
+const buttonColours = ["red", "blue", "green", "yellow"];
 
 let gamePattern = [];
-
 let userClickedPattern = [];
-
 let pressed = false;
-let lvl = 0;
+let level = 0;
 
-$(".start-button").click(function() {
-    $("h1").text("Level " + lvl);
+document.querySelector(".start-button").addEventListener("click", () => {
+    document.querySelector("h1").textContent = "Level " + level;
 
-    if(!pressed){
+    if (!pressed) {
         nextSequence();
         pressed = true;
-      }
+    }
 });
 
-let nextSequence = () => {
-    lvl++;
+const nextSequence = () => {
+    level++;
     userClickedPattern = [];
+    document.querySelector("h1").textContent = "Level " + level;
 
-    $("h1").text("Level " + lvl)
-
-    let randomNumber = Math.floor(Math.random() * 4);
-
-    let randomChosenColour = buttonColours[randomNumber];
+    const randomNumber = Math.floor(Math.random() * buttonColours.length);
+    const randomChosenColour = buttonColours[randomNumber];
     gamePattern.push(randomChosenColour);
 
-    $("#" + randomChosenColour).fadeOut(100).fadeIn(100);
-
-    playSound(randomChosenColour);
+    for (let i = 0; i < gamePattern.length; i++) {
+        setTimeout(() => {
+            const currentColor = gamePattern[i];
+            const button = document.getElementById(currentColor);
+            button.style.opacity = 0;
+            setTimeout(() => {
+                button.style.opacity = 1;
+            }, 100);
+            playSound(currentColor);
+        }, i * 350);
+    }
 };
 
-$(".btn").click(function() {
-
-    let userChosenColour = $(this).attr("id");
-
-    userClickedPattern.push(userChosenColour);
-
-    playSound(userChosenColour);
-
-    animatePress(userChosenColour);
-
-    checkAnswer(userClickedPattern.lastIndexOf(userChosenColour));
-
+document.querySelectorAll(".btn").forEach(btn => {
+    btn.addEventListener("click", function() {
+        const userChosenColour = this.id;
+        userClickedPattern.push(userChosenColour);
+        playSound(userChosenColour);
+        animatePress(userChosenColour);
+        checkAnswer(userClickedPattern.lastIndexOf(userChosenColour));
+    });
 });
 
-let animatePress = (currentColor) => {
-    $("#" + currentColor).addClass("pressed");
+const animatePress = (currentColor) => {
+    const button = document.getElementById(currentColor);
+    button.classList.add("pressed");
     setTimeout(() => {
-        $("#" + currentColor).removeClass("pressed");
+        button.classList.remove("pressed");
     }, 100);
 };
 
-let playSound = (name) => {
-    let audio = new Audio("sounds/" + name + ".mp3");
+const playSound = (name) => {
+    const audio = new Audio("sounds/" + name + ".mp3");
     audio.play();
-};   
-
-
-let checkAnswer = (currentLevel) => {
-
-    if(userClickedPattern[currentLevel] == gamePattern[currentLevel]){
-
-      let count = 0;
-
-      for (let i = 0; i < gamePattern.length; i++) {
-        if(gamePattern[i] === userClickedPattern[i]){
-          count++;
+};
+const checkAnswer = (currentLevel) => {
+    if (userClickedPattern[currentLevel] === gamePattern[currentLevel]) {
+        let count = 0;
+        for (let i = 0; i < gamePattern.length; i++) {
+            if (gamePattern[i] === userClickedPattern[i]) {
+                count++;
+            }
         }
-      }
-
-      if(count === gamePattern.length){
-        console.log("success");
-        setTimeout(function(){
-            nextSequence();
-          }, 1000);
-      }
-
+        if (count === gamePattern.length) {
+            console.log("success");
+            setTimeout(() => {
+                nextSequence();
+            }, 1000);
+        }
     } else {
-      playSound("wrong");
-
-      $("body").addClass("game-over");
-      setTimeout(() => {
-        $("body").removeClass("game-over");
+        playSound("wrong");
+        document.body.classList.add("game-over");
+        setTimeout(() => {
+            document.body.classList.remove("game-over");
         }, 300);
-      
-      $("h1").html("Game Over!<br/> Press Button to Restart")
-
-      startOver();
+        document.querySelector("h1").innerHTML = "My grandma got more than you!<br/> Click on Button to Restart";
+        startOver();
     }
-}      
+};
 
-let startOver = () => {
-    lvl = 0;
+const startOver = () => {
+    level = 0;
     gamePattern = [];
     pressed = false;
 };
-
-
-
-
-
 
 
